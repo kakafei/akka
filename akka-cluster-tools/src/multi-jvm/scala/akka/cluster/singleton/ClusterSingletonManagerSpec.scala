@@ -238,10 +238,16 @@ class ClusterSingletonManagerSpec extends MultiNodeSpec(ClusterSingletonManagerS
       // make sure that the proxy has received membership changes
       // and points to the current singleton
       val p = TestProbe()
+      val oldestAddress = node(oldest).address
       within(5.seconds) {
         awaitAssert {
           system.actorSelection("/user/consumerProxy").tell(Ping, p.ref)
           p.expectMsg(1.second, Pong)
+          val replyFromAddress = p.lastSender.path.address
+          if (oldest == proxyNode)
+            replyFromAddress.hasLocalScope should ===(true)
+          else
+            replyFromAddress should ===(oldestAddress)
         }
       }
       // then send the real message
