@@ -11,12 +11,10 @@ import scala.runtime.BoxedUnit
 
 /**
  * Java API: compatible with lambda expressions
- *
- * This is an EXPERIMENTAL feature and is subject to change until it has received more real world testing.
  */
 object AbstractActor {
 
-  class Receive(val onMessage: PartialFunction[Any, BoxedUnit]) {
+  final class Receive(val onMessage: PartialFunction[Any, BoxedUnit]) {
     def orElse(other: Receive): Receive = new Receive(onMessage.orElse(other.onMessage))
   }
 
@@ -92,7 +90,6 @@ object AbstractActor {
  * }
  * </pre>
  *
- * This is an EXPERIMENTAL feature and is subject to change until it has received more real world testing.
  */
 @ApiMayChange
 abstract class AbstractActor extends Actor {
@@ -175,7 +172,7 @@ abstract class UntypedAbstractActor extends AbstractActor {
 
   /**
    * To be implemented by concrete UntypedAbstractActor, this defines the behavior of the
-   * UntypedActor.
+   * actor.
    */
   @throws(classOf[Throwable])
   def onReceive(message: Any): Unit
@@ -195,7 +192,6 @@ abstract class UntypedAbstractActor extends AbstractActor {
  *
  * Actor base class that mixes in logging into the Actor.
  *
- * This is an EXPERIMENTAL feature and is subject to change until it has received more real world testing.
  */
 abstract class AbstractLoggingActor extends AbstractActor with ActorLogging
 
@@ -242,7 +238,6 @@ abstract class AbstractLoggingActor extends AbstractActor with ActorLogging
  * There is also an unrestricted version [[akka.actor.AbstractActorWithUnrestrictedStash]] that does not
  * enforce the mailbox type.
  *
- * This is an EXPERIMENTAL feature and is subject to change until it has received more real world testing.
  */
 abstract class AbstractActorWithStash extends AbstractActor with Stash
 
@@ -253,7 +248,6 @@ abstract class AbstractActorWithStash extends AbstractActor with Stash
  * manually, and the mailbox should extend the [[akka.dispatch.DequeBasedMessageQueueSemantics]] marker trait.
  * See [[akka.actor.AbstractActorWithStash]] for details on how `Stash` works.
  *
- * This is an EXPERIMENTAL feature and is subject to change until it has received more real world testing.
  */
 abstract class AbstractActorWithUnboundedStash extends AbstractActor with UnboundedStash
 
@@ -263,6 +257,5 @@ abstract class AbstractActorWithUnboundedStash extends AbstractActor with Unboun
  * Actor base class with `Stash` that does not enforce any mailbox type. The mailbox of the actor has to be configured
  * manually. See [[akka.actor.AbstractActorWithStash]] for details on how `Stash` works.
  *
- * This is an EXPERIMENTAL feature and is subject to change until it has received more real world testing.
  */
 abstract class AbstractActorWithUnrestrictedStash extends AbstractActor with UnrestrictedStash

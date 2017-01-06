@@ -11,7 +11,6 @@ import scala.concurrent.duration.FiniteDuration
 /**
  * Java API: compatible with lambda expressions
  *
- * This is an EXPERIMENTAL feature and is subject to change until it has received more real world testing.
  */
 @ApiMayChange
 object AbstractFSM {
@@ -31,7 +30,6 @@ object AbstractFSM {
  *
  * Finite State Machine actor abstract base class.
  *
- * This is an EXPERIMENTAL feature and is subject to change until it has received more real world testing.
  */
 abstract class AbstractFSM[S, D] extends FSM[S, D] {
   import akka.japi.pf._
@@ -382,7 +380,6 @@ abstract class AbstractFSM[S, D] extends FSM[S, D] {
  *
  * Finite State Machine actor abstract base class.
  *
- * This is an EXPERIMENTAL feature and is subject to change until it has received more real world testing.
  */
 abstract class AbstractLoggingFSM[S, D] extends AbstractFSM[S, D] with LoggingFSM[S, D]
 
@@ -391,6 +388,5 @@ abstract class AbstractLoggingFSM[S, D] extends AbstractFSM[S, D] with LoggingFS
  *
  * Finite State Machine actor abstract base class with Stash support.
  *
- * This is an EXPERIMENTAL feature and is subject to change until it has received more real world testing.
  */
 abstract class AbstractFSMWithStash[S, D] extends AbstractFSM[S, D] with Stash
