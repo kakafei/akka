@@ -31,6 +31,7 @@ class ClusterSingletonRestart2Spec extends AkkaSpec("""
   akka.loglevel = DEBUG
   akka.cluster.roles = [singleton]
   akka.actor.provider = akka.cluster.ClusterActorRefProvider
+  akka.cluster.auto-down-unreachable-after = 2s
   akka.remote {
     netty.tcp {
       hostname = "127.0.0.1"
@@ -59,7 +60,7 @@ class ClusterSingletonRestart2Spec extends AkkaSpec("""
           settings = ClusterSingletonManagerSettings(from).withRole("singleton")),
         name = "echo")
 
-    within(25.seconds) {
+    within(45.seconds) {
       awaitAssert {
         Cluster(from) join Cluster(to).selfAddress
         Cluster(from).state.members.map(_.uniqueAddress) should contain(Cluster(from).selfUniqueAddress)

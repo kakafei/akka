@@ -17,6 +17,7 @@ import com.typesafe.config.ConfigFactory
 class ClusterSingletonRestartSpec extends AkkaSpec("""
   akka.loglevel = INFO
   akka.actor.provider = akka.cluster.ClusterActorRefProvider
+  akka.cluster.auto-down-unreachable-after = 2s
   akka.remote {
     netty.tcp {
       hostname = "127.0.0.1"
