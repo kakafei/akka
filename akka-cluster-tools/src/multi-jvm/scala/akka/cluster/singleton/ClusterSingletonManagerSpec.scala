@@ -40,7 +40,7 @@ object ClusterSingletonManagerSpec extends MultiNodeConfig {
   val sixth = role("sixth")
 
   commonConfig(ConfigFactory.parseString("""
-    akka.loglevel = DEBUG
+    akka.loglevel = INFO
     akka.actor.provider = "cluster"
     akka.remote.log-remote-lifecycle-events = off
     akka.cluster.auto-down-unreachable-after = 0s
@@ -239,7 +239,7 @@ class ClusterSingletonManagerSpec extends MultiNodeSpec(ClusterSingletonManagerS
       // and points to the current singleton
       val p = TestProbe()
       val oldestAddress = node(oldest).address
-      within(5.seconds) {
+      within(10.seconds) {
         awaitAssert {
           system.actorSelection("/user/consumerProxy").tell(Ping, p.ref)
           p.expectMsg(1.second, Pong)
@@ -254,9 +254,11 @@ class ClusterSingletonManagerSpec extends MultiNodeSpec(ClusterSingletonManagerS
       system.actorSelection("/user/consumerProxy") ! msg
     }
 
+    enterBarrier(s"sent-msg-$msg")
+
     // expect a message on the oldest node
     runOn(oldest) {
-      expectMsg(5.seconds, msg)
+      expectMsg(msg)
     }
 
     enterBarrier("after-" + msg + "-proxy-verified")
@@ -393,35 +395,35 @@ class ClusterSingletonManagerSpec extends MultiNodeSpec(ClusterSingletonManagerS
       enterBarrier("after-leave")
     }
 
-    //    "take over when oldest crashes in 5 nodes cluster" in within(60 seconds) {
-    //      // mute logging of deadLetters during shutdown of systems
-    //      if (!log.isDebugEnabled)
-    //        system.eventStream.publish(Mute(DeadLettersFilter[Any]))
-    //      enterBarrier("logs-muted")
-    //
-    //      crash(second)
-    //      verifyRegistration(third)
-    //      verifyMsg(third, msg = msg())
-    //      verifyProxyMsg(third, third, msg = msg())
-    //      verifyProxyMsg(third, fourth, msg = msg())
-    //      verifyProxyMsg(third, fifth, msg = msg())
-    //      verifyProxyMsg(third, sixth, msg = msg())
-    //    }
-    //
-    //    "take over when two oldest crash in 3 nodes cluster" in within(60 seconds) {
-    //      crash(third, fourth)
-    //      verifyRegistration(fifth)
-    //      verifyMsg(fifth, msg = msg())
-    //      verifyProxyMsg(fifth, fifth, msg = msg())
-    //      verifyProxyMsg(fifth, sixth, msg = msg())
-    //    }
-    //
-    //    "take over when oldest crashes in 2 nodes cluster" in within(60 seconds) {
-    //      crash(fifth)
-    //      verifyRegistration(sixth)
-    //      verifyMsg(sixth, msg = msg())
-    //      verifyProxyMsg(sixth, sixth, msg = msg())
-    //    }
+    "take over when oldest crashes in 5 nodes cluster" in within(60 seconds) {
+      // mute logging of deadLetters during shutdown of systems
+      if (!log.isDebugEnabled)
+        system.eventStream.publish(Mute(DeadLettersFilter[Any]))
+      enterBarrier("logs-muted")
+
+      crash(second)
+      verifyRegistration(third)
+      verifyMsg(third, msg = msg())
+      verifyProxyMsg(third, third, msg = msg())
+      verifyProxyMsg(third, fourth, msg = msg())
+      verifyProxyMsg(third, fifth, msg = msg())
+      verifyProxyMsg(third, sixth, msg = msg())
+    }
+
+    "take over when two oldest crash in 3 nodes cluster" in within(60 seconds) {
+      crash(third, fourth)
+      verifyRegistration(fifth)
+      verifyMsg(fifth, msg = msg())
+      verifyProxyMsg(fifth, fifth, msg = msg())
+      verifyProxyMsg(fifth, sixth, msg = msg())
+    }
+
+    "take over when oldest crashes in 2 nodes cluster" in within(60 seconds) {
+      crash(fifth)
+      verifyRegistration(sixth)
+      verifyMsg(sixth, msg = msg())
+      verifyProxyMsg(sixth, sixth, msg = msg())
+    }
 
   }
 }
