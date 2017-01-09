@@ -89,12 +89,14 @@ class ClusterSingletonManagerLeaveSpec extends MultiNodeSpec(ClusterSingletonMan
       name = "echo")
   }
 
+  val echoProxyTerminatedProbe = TestProbe()
+
   lazy val echoProxy: ActorRef = {
-    system.actorOf(
+    echoProxyTerminatedProbe.watch(system.actorOf(
       ClusterSingletonProxy.props(
         singletonManagerPath = "/user/echo",
         settings = ClusterSingletonProxySettings(system)),
-      name = "echoProxy")
+      name = "echoProxy"))
   }
 
   "Leaving ClusterSingletonManager" must {
@@ -132,6 +134,7 @@ class ClusterSingletonManagerLeaveSpec extends MultiNodeSpec(ClusterSingletonMan
       runOn(first) {
         expectMsg(10.seconds, "stop")
         expectMsg("postStop")
+        echoProxyTerminatedProbe.expectTerminated(echoProxy, 10.seconds)
       }
       enterBarrier("first-stopped")
 
@@ -160,6 +163,7 @@ class ClusterSingletonManagerLeaveSpec extends MultiNodeSpec(ClusterSingletonMan
       runOn(second) {
         expectMsg(15.seconds, "stop")
         expectMsg("postStop")
+        echoProxyTerminatedProbe.expectTerminated(echoProxy, 10.seconds)
       }
       enterBarrier("second-stopped")
 
@@ -175,6 +179,7 @@ class ClusterSingletonManagerLeaveSpec extends MultiNodeSpec(ClusterSingletonMan
       runOn(third) {
         expectMsg(5.seconds, "stop")
         expectMsg("postStop")
+        echoProxyTerminatedProbe.expectTerminated(echoProxy, 10.seconds)
       }
       enterBarrier("third-stopped")
 
