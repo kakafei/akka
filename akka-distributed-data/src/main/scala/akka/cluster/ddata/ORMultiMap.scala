@@ -204,6 +204,9 @@ final class ORMultiMap[A] private[akka] (private[akka] val underlying: ORMap[ORS
     else
       this
 
+  override def usingNodes: Set[UniqueAddress] =
+    underlying.usingNodes
+
   override def needPruningFrom(removedNode: UniqueAddress): Boolean =
     underlying.needPruningFrom(removedNode)
 

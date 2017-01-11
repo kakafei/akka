@@ -143,6 +143,9 @@ final class LWWMap[A] private[akka] (
   override def merge(that: LWWMap[A]): LWWMap[A] =
     new LWWMap(underlying.merge(that.underlying))
 
+  override def usingNodes: Set[UniqueAddress] =
+    underlying.usingNodes
+
   override def needPruningFrom(removedNode: UniqueAddress): Boolean =
     underlying.needPruningFrom(removedNode)
 
