@@ -992,7 +992,7 @@ private[cluster] class ClusterCoreDaemon(publisher: ActorRef) extends Actor with
       // only run the leader actions if we are the LEADER
       val firstNotice = 20
       val periodicNotice = 60
-      if (latestGossip.convergence(selfUniqueAddress)) {
+      if (latestGossip.convergence(selfUniqueAddress, exitingConfirmed)) {
         if (leaderActionCounter >= firstNotice)
           logInfo("Leader can perform its duties again")
         leaderActionCounter = 0

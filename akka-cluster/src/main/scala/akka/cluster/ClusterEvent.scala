@@ -336,9 +336,9 @@ object ClusterEvent {
   private[cluster] def diffSeen(oldGossip: Gossip, newGossip: Gossip, selfUniqueAddress: UniqueAddress): immutable.Seq[SeenChanged] =
     if (newGossip eq oldGossip) Nil
     else {
-      val newConvergence = newGossip.convergence(selfUniqueAddress)
+      val newConvergence = newGossip.convergence(selfUniqueAddress, Set.empty)
       val newSeenBy = newGossip.seenBy
-      if (newConvergence != oldGossip.convergence(selfUniqueAddress) || newSeenBy != oldGossip.seenBy)
+      if (newConvergence != oldGossip.convergence(selfUniqueAddress, Set.empty) || newSeenBy != oldGossip.seenBy)
         List(SeenChanged(newConvergence, newSeenBy.map(_.address)))
       else Nil
     }

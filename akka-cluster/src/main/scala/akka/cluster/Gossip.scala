@@ -158,7 +158,7 @@ private[cluster] final case class Gossip(
    *
    * @return true if convergence have been reached and false if not
    */
-  def convergence(selfUniqueAddress: UniqueAddress): Boolean = {
+  def convergence(selfUniqueAddress: UniqueAddress, exitingConfirmed: Set[UniqueAddress]): Boolean = {
     // First check that:
     //   1. we don't have any members that are unreachable, excluding observations from members
     //      that have status DOWN, or
@@ -167,10 +167,11 @@ private[cluster] final case class Gossip(
     // When that is done we check that all members with a convergence
     // status is in the seen table, i.e. has seen this version
     val unreachable = reachabilityExcludingDownedObservers.allUnreachableOrTerminated.collect {
-      case node if (node != selfUniqueAddress) ⇒ member(node)
+      case node if (node != selfUniqueAddress && !exitingConfirmed(node)) ⇒ member(node)
     }
     unreachable.forall(m ⇒ Gossip.convergenceSkipUnreachableWithMemberStatus(m.status)) &&
-      !members.exists(m ⇒ Gossip.convergenceMemberStatus(m.status) && !seenByNode(m.uniqueAddress))
+      !members.exists(m ⇒ Gossip.convergenceMemberStatus(m.status) &&
+        !(seenByNode(m.uniqueAddress) || exitingConfirmed(m.uniqueAddress)))
   }
 
   lazy val reachabilityExcludingDownedObservers: Reachability = {
