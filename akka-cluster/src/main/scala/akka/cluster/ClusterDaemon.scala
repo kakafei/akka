@@ -803,13 +803,15 @@ private[cluster] class ClusterCoreDaemon(publisher: ActorRef) extends Actor with
       val (winningGossip, talkback, gossipType) = comparison match {
         case VectorClock.Same ⇒
           // same version
-          (remoteGossip mergeSeen localGossip, !remoteGossip.seenByNode(selfUniqueAddress), Same)
+          val talkback = !exitingTasksInProgress && !remoteGossip.seenByNode(selfUniqueAddress)
+          (remoteGossip mergeSeen localGossip, talkback, Same)
         case VectorClock.Before ⇒
           // local is newer
           (localGossip, true, Older)
         case VectorClock.After ⇒
           // remote is newer
-          (remoteGossip, !remoteGossip.seenByNode(selfUniqueAddress), Newer)
+          val talkback = !exitingTasksInProgress && !remoteGossip.seenByNode(selfUniqueAddress)
+          (remoteGossip, talkback, Newer)
         case _ ⇒
           // conflicting versions, merge
           // We can see that a removal was done when it is not in one of the gossips has status
@@ -834,7 +836,12 @@ private[cluster] class ClusterCoreDaemon(publisher: ActorRef) extends Actor with
           (prunedRemoteGossip merge prunedLocalGossip, true, Merge)
       }
 
-      if (!exitingTasksInProgress)
+      // Don't mark gossip state as seen while exiting is in progress, e.g.
+      // shutting down singleton actors. This delays removal of the member until
+      // the exiting tasks have been completed.
+      if (exitingTasksInProgress)
+        latestGossip = winningGossip
+      else
         latestGossip = winningGossip seen selfUniqueAddress
       assertLatestGossip()
 
@@ -1262,14 +1269,16 @@ private[cluster] class ClusterCoreDaemon(publisher: ActorRef) extends Actor with
       latestGossip.reachabilityExcludingDownedObservers.isReachable(node))
 
   def updateLatestGossip(newGossip: Gossip): Unit = {
+    // Updating the vclock version for the changes
+    val versionedGossip = newGossip :+ vclockNode
+
     // Don't mark gossip state as seen while exiting is in progress, e.g.
-    // shutting down singleton actors.
+    // shutting down singleton actors. This delays removal of the member until
+    // the exiting tasks have been completed.
     if (exitingTasksInProgress)
-      latestGossip = newGossip
+      latestGossip = versionedGossip.clearSeen()
     else {
-      // Updating the vclock version for the changes
-      val versionedGossip = newGossip :+ vclockNode
-      // Nobody else have seen this gossip but us
+      // Nobody else has seen this gossip but us
       val seenVersionedGossip = versionedGossip onlySeen (selfUniqueAddress)
       // Update the state with the new gossip
       latestGossip = seenVersionedGossip

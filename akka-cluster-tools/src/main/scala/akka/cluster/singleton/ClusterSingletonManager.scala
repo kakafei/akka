@@ -93,9 +93,9 @@ object ClusterSingletonManagerSettings {
  *   (+ `removalMargin`).
  */
 final class ClusterSingletonManagerSettings(
-  val singletonName:         String,
-  val role:                  Option[String],
-  val removalMargin:         FiniteDuration,
+  val singletonName: String,
+  val role: Option[String],
+  val removalMargin: FiniteDuration,
   val handOverRetryInterval: FiniteDuration) extends NoSerializationVerificationNeeded {
 
   def withSingletonName(name: String): ClusterSingletonManagerSettings = copy(singletonName = name)
@@ -111,9 +111,9 @@ final class ClusterSingletonManagerSettings(
     copy(handOverRetryInterval = retryInterval)
 
   private def copy(
-    singletonName:         String         = singletonName,
-    role:                  Option[String] = role,
-    removalMargin:         FiniteDuration = removalMargin,
+    singletonName: String = singletonName,
+    role: Option[String] = role,
+    removalMargin: FiniteDuration = removalMargin,
     handOverRetryInterval: FiniteDuration = handOverRetryInterval): ClusterSingletonManagerSettings =
     new ClusterSingletonManagerSettings(singletonName, role, removalMargin, handOverRetryInterval)
 }
@@ -129,9 +129,9 @@ object ClusterSingletonManager {
    * Scala API: Factory method for `ClusterSingletonManager` [[akka.actor.Props]].
    */
   def props(
-    singletonProps:     Props,
+    singletonProps: Props,
     terminationMessage: Any,
-    settings:           ClusterSingletonManagerSettings): Props =
+    settings: ClusterSingletonManagerSettings): Props =
     Props(new ClusterSingletonManager(singletonProps, terminationMessage, settings)).withDeploy(Deploy.local)
 
   /**
@@ -196,7 +196,7 @@ object ClusterSingletonManager {
     final case class BecomingOldestData(previousOldestOption: Option[UniqueAddress]) extends Data
     final case class OldestData(singleton: ActorRef, singletonTerminated: Boolean = false) extends Data
     final case class WasOldestData(singleton: ActorRef, singletonTerminated: Boolean,
-                                   newOldestOption: Option[UniqueAddress]) extends Data
+      newOldestOption: Option[UniqueAddress]) extends Data
     final case class HandingOverData(singleton: ActorRef, handOverTo: Option[ActorRef]) extends Data
     final case class StoppingData(singleton: ActorRef) extends Data
     case object EndData extends Data
@@ -243,7 +243,7 @@ object ClusterSingletonManager {
       override def preStart(): Unit = {
         cluster.subscribe(self, classOf[MemberEvent])
 
-        // It'ss a delicate difference between oordinatedShutdown.PhaseClusterExiting and MemberExited.
+        // It's a delicate difference between CoordinatedShutdown.PhaseClusterExiting and MemberExited.
         // MemberExited event is published immediately (leader may have performed that transition on other node),
         // and that will trigger run of CoordinatedShutdown, while PhaseClusterExiting will happen later.
         // Using PhaseClusterExiting in the singleton because the graceful shutdown of sharding region
@@ -408,9 +408,9 @@ class ClusterSingletonManagerIsStuck(message: String) extends AkkaException(mess
  * @param settings see [[ClusterSingletonManagerSettings]]
  */
 class ClusterSingletonManager(
-  singletonProps:     Props,
+  singletonProps: Props,
   terminationMessage: Any,
-  settings:           ClusterSingletonManagerSettings)
+  settings: ClusterSingletonManagerSettings)
   extends Actor with FSM[ClusterSingletonManager.State, ClusterSingletonManager.Data] {
 
   import ClusterSingletonManager.Internal._

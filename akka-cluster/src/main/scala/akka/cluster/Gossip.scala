@@ -115,6 +115,13 @@ private[cluster] final case class Gossip(
   }
 
   /**
+   * Remove all seen entries
+   */
+  def clearSeen(): Gossip = {
+    this copy (overview = overview copy (seen = Set.empty))
+  }
+
+  /**
    * The nodes that have seen the current version of the Gossip.
    */
   def seenBy: Set[UniqueAddress] = overview.seen
