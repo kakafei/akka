@@ -255,13 +255,18 @@ public class IntegrationDocTest extends AbstractJavaTest {
   static class DatabaseService extends AbstractActor {
     public final ActorRef probe;
 
-    DatabaseService(ActorRef probe) {
+    public DatabaseService(ActorRef probe) {
       this.probe = probe;
-
-      receive(ReceiveBuilder.match(Save.class, s -> {
-        probe.tell(s.tweet.author.handle, ActorRef.noSender());
-        sender().tell(SaveDone.INSTANCE, self());
-      }).build());
+    }
+    
+    @Override
+    public Receive initialReceive() {
+      return receiveBuilder()
+        .match(Save.class, s -> {
+          probe.tell(s.tweet.author.handle, ActorRef.noSender());
+          sender().tell(SaveDone.INSTANCE, self());
+        })
+        .build();
     }
   }
 

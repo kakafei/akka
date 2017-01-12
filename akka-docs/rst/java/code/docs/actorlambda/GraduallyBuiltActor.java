@@ -17,8 +17,10 @@ import akka.japi.pf.UnitPFBuilder;
 public class GraduallyBuiltActor extends AbstractActor {
   private final LoggingAdapter log = Logging.getLogger(context().system(), this);
 
-  public GraduallyBuiltActor() {
-    UnitPFBuilder<Object> builder = ReceiveBuilder.create();
+  @Override
+  public Receive initialReceive() {
+    ReceiveBuilder builder = ReceiveBuilder.create();
+    
     builder.match(String.class, s -> {
       log.info("Received String message: {}", s);
       //#actor
@@ -27,9 +29,12 @@ public class GraduallyBuiltActor extends AbstractActor {
       //#reply
       //#actor
     });
+    
     // do some other stuff in between
+    
     builder.matchAny(o -> log.info("received unknown message"));
-    receive(builder.build());
+    
+    return builder.build();
   }
 }
 //#actor

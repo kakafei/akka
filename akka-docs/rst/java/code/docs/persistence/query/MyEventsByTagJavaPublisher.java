@@ -58,16 +58,19 @@ class MyEventsByTagJavaPublisher extends AbstractActorPublisher<EventEnvelope> {
     this.continueTask = scheduler
       .schedule(refreshInterval, refreshInterval, self(), CONTINUE,
                 context().dispatcher(), self());
-
-    receive(ReceiveBuilder
-              .matchEquals(CONTINUE, (in) -> {
-                query();
-                deliverBuf();
-              })
+  }
+  
+  @Override
+  public Receive initialReceive() {
+    return receiveBuilder()
+      .matchEquals(CONTINUE, (in) -> {
+        query();
+        deliverBuf();
+      })
       .match(Cancel.class, (in) -> {
         context().stop(self());
       })
-      .build());
+      .build();
   }
 
   public static Props props(Connection conn, String tag, Long offset, 

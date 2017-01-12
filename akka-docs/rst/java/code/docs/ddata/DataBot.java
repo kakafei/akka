@@ -5,6 +5,7 @@ package docs.ddata;
 
 //#data-bot
 import static java.util.concurrent.TimeUnit.SECONDS;
+
 import scala.concurrent.duration.Duration;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -42,12 +43,13 @@ public class DataBot extends AbstractActor {
   private final Key<ORSet<String>> dataKey = ORSetKey.create("key");
   
   @SuppressWarnings("unchecked")
-  public DataBot() {
-    receive(ReceiveBuilder
+  @Override
+  public Receive initialReceive() {
+    return receiveBuilder()
       .match(String.class, a -> a.equals(TICK), a -> receiveTick())
       .match(Changed.class, c -> c.key().equals(dataKey), c -> receiveChanged((Changed<ORSet<String>>) c))
       .match(UpdateResponse.class, r -> receiveUpdateResoponse())
-      .build());
+      .build();
   }
 
 

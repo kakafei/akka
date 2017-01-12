@@ -17,14 +17,6 @@ its syntax from Erlang.
 
 .. _Actor Model: http://en.wikipedia.org/wiki/Actor_model
 
-.. warning::
-
-  The Java with lambda support part of Akka is marked as **“experimental”** as of its introduction in
-  Akka 2.3.0. We will continue to improve this API based on our users’ feedback, which implies that
-  while we try to keep incompatible changes to a minimum, but the binary compatibility guarantee for
-  maintenance releases does not apply to the :class:`akka.actor.AbstractActor`, related classes and
-  the :class:`akka.japi.pf` package.
-
 Creating Actors
 ===============
 
@@ -53,12 +45,6 @@ Here is an example:
 
 .. includecode:: code/docs/actorlambda/MyActor.java
    :include: imports,my-actor
-
-In case you want to provide many :meth:`match` cases but want to avoid creating a long call
-trail, you can split the creation of the builder into multiple statements as in the example:
-
-.. includecode:: code/docs/actorlambda/GraduallyBuiltActor.java
-   :include: imports,actor
 
 Please note that the Akka Actor ``receive`` message loop is exhaustive, which
 is different compared to Erlang and the late Scala Actors. This means that you
@@ -185,15 +171,15 @@ Actors are automatically started asynchronously when created.
 Dependency Injection
 --------------------
 
-If your UntypedActor has a constructor that takes parameters then those need to
+If your actor has a constructor that takes parameters then those need to
 be part of the :class:`Props` as well, as described `above`__. But there
 are cases when a factory method must be used, for example when the actual
 constructor arguments are determined by a dependency injection framework.
 
 __ Props_
 
-.. includecode:: code/docs/actor/UntypedActorDocTest.java#import-indirect
-.. includecode:: code/docs/actor/UntypedActorDocTest.java
+.. includecode:: code/docs/actorlambda/DependencyInjectionDocTest.java#import
+.. includecode:: code/docs/actorlambda/DependencyInjectionDocTest.java
    :include: creating-indirectly
    :exclude: obtain-fresh-Actor-instance-from-DI-framework
 
@@ -260,7 +246,7 @@ In addition, it offers:
   occurred within a distant descendant it is still reported one level up at a
   time).
 
-* :meth:`context()` exposes contextual information for the actor and the current message, such as:
+* :meth:`getContext()` exposes contextual information for the actor and the current message, such as:
 
   * factory methods to create child actors (:meth:`actorOf`)
   * system that the actor belongs to
@@ -272,7 +258,7 @@ In addition, it offers:
 The remaining visible methods are user-overridable life-cycle hooks which are
 described in the following:
 
-.. includecode:: code/docs/actor/UntypedActorDocTest.java#lifecycle-callbacks
+.. includecode:: code/docs/actorlambda/ActorDocTest.java#lifecycle-callbacks
 
 The implementations shown above are the defaults provided by the :class:`AbstractActor`
 class.
@@ -334,6 +320,7 @@ termination (see `Stopping Actors`_). This service is provided by the
 
 Registering a monitor is easy:
 
+.. includecode:: code/docs/actorlambda/ActorDocTest.java#import-terminated
 .. includecode:: code/docs/actorlambda/ActorDocTest.java#watch
 
 It should be noted that the :class:`Terminated` message is generated
@@ -559,8 +546,8 @@ Ask: Send-And-Receive-Future
 The ``ask`` pattern involves actors as well as futures, hence it is offered as
 a use pattern rather than a method on :class:`ActorRef`:
 
-.. includecode:: code/docs/actor/UntypedActorDocTest.java#import-ask
-.. includecode:: code/docs/actor/UntypedActorDocTest.java#ask-pipe
+.. includecode:: code/docs/actorlambda/ActorDocTest.java#import-ask
+.. includecode:: code/docs/actorlambda/ActorDocTest.java#ask-pipe
 
 This example demonstrates ``ask`` together with the ``pipe`` pattern on
 futures, because this is likely to be a common combination. Please note that
@@ -576,6 +563,10 @@ complete the returned :class:`Future` with a value. The ``ask`` operation
 involves creating an internal actor for handling this reply, which needs to
 have a timeout after which it is destroyed in order not to leak resources; see
 more below.
+
+.. note::
+    A variant of the ``ask`` pattern that returns a ``CompletionStage`` instead of a Scala ``Future``
+    is available in the ``akka.pattern.PatternsCS`` object.
 
 .. warning::
 
@@ -618,29 +609,53 @@ routers, load-balancers, replicators etc.
 Receive messages
 ================
 
-An Actor either has to set its initial receive behavior in the constructor by
-calling the :meth:`receive` method in the :class:`AbstractActor`:
+An actor has to define its initial receive behavior by implementing
+the :meth:`initialReceive` method in the :class:`AbstractActor`:
 
-.. includecode:: code/docs/actorlambda/ActorDocTest.java
-   :include: receive-constructor
-   :exclude: and-some-behavior
+.. includecode:: code/docs/actorlambda/ActorDocTest.java#initialReceive
 
-or by implementing the :meth:`receive` method in the :class:`Actor` interface:
 
-.. includecode:: code/docs/actorlambda/ActorDocTest.java#receive
-
-Both the argument to the :class:`AbstractActor` :meth:`receive` method and the return
-type of the :class:`Actor` :meth:`receive` method is a ``PartialFunction<Object, BoxedUnit>``
-that defines which messages your Actor can handle, along with the implementation of how the messages
-should be processed.
-
-Don't let the type signature scare you. To allow you to easily build up a partial
-function there is a builder named ``ReceiveBuilder`` that you can use.
+The return type is :class:`AbstractActor.Receive` that defines which messages your Actor can handle, 
+along with the implementation of how the messages should be processed.
+You can build such behavior with a builder named ``ReceiveBuilder``.
 
 Here is an example:
 
 .. includecode:: code/docs/actorlambda/MyActor.java
    :include: imports,my-actor
+
+In case you want to provide many :meth:`match` cases but want to avoid creating a long call
+trail, you can split the creation of the builder into multiple statements as in the example:
+
+.. includecode:: code/docs/actorlambda/GraduallyBuiltActor.java
+   :include: imports,actor
+
+Using small methods is a good practice, also in actors. It's recommended to delegate the 
+actual work of the message processing to methods instead of defining a huge ``ReceiveBuilder``
+with lots of code in each lambda. A well structured actor can look like this:
+
+.. includecode:: code/docs/actorlambda/ActorDocTest.java#well-structured
+
+That has benefits such as:
+
+* easier to see what kind of messages the actor can handle
+* readable stack traces in case of exceptions
+* works better with performance profiling tools
+* Java HotSpot has a better opportunity for making optimizations
+
+The ``Receive`` can be implemented in other ways than using the ``ReceiveBuilder`` since it in the
+end is just a wrapper around a Scala ``PartialFunction``. For example, one could implement an adapter
+to `Javaslang Pattern Matching DSL <http://www.javaslang.io/javaslang-docs/#_pattern_matching>`_.
+
+If the validation of the ``ReceiveBuilder`` match logic turns out to be a bottleneck for some of your
+actors you can consider to implement it at lower level by extending ``UntypedAbstractActor`` instead
+of ``AbstractActor``. The partial functions created by the ``ReceiveBuilder`` consist of multiple lambda 
+expressions for every match statement, where each lambda is referencing the code to be run. This is something
+that the JVM can have problems optimizing and the resulting code might not be as performant as the 
+untyped version. When extending ``UntypedAbstractActor`` each message is received as an untyped 
+``Object`` and you have to inspect and cast it to the actual message type in other ways, like this:
+
+.. includecode:: code/docs/actorlambda/ActorDocTest.java#optimized
 
 .. _LambdaActor.Reply:
 
@@ -689,6 +704,8 @@ child actors and the system for stopping top level actors. The actual terminatio
 the actor is performed asynchronously, i.e. :meth:`stop` may return before the actor is
 stopped.
 
+.. includecode:: code/docs/actorlambda/MyStoppingActor.java#my-stopping-actor
+
 Processing of the current message, if any, will continue before the actor is stopped,
 but additional messages in the mailbox will not be processed. By default these
 messages are sent to the :obj:`deadLetters` of the :obj:`ActorSystem`, but that
@@ -734,15 +751,17 @@ stop the actor when the message is processed. ``PoisonPill`` is enqueued as
 ordinary messages and will be handled after messages that were already queued
 in the mailbox.
 
+.. includecode:: code/docs/actorlambda/ActorDocTest.java#poison-pill
+
 Graceful Stop
 -------------
 
 :meth:`gracefulStop` is useful if you need to wait for termination or compose ordered
 termination of several actors:
 
-.. includecode:: code/docs/actor/UntypedActorDocTest.java#import-gracefulStop
+.. includecode:: code/docs/actorlambda/ActorDocTest.java#import-gracefulStop
 
-.. includecode:: code/docs/actor/UntypedActorDocTest.java#gracefulStop
+.. includecode:: code/docs/actorlambda/ActorDocTest.java#gracefulStop
 
 .. includecode:: code/docs/actorlambda/ActorDocTest.java#gracefulStop-actor
 
@@ -768,9 +787,6 @@ before stopping the target actor. Simple cleanup tasks can be handled in ``postS
 
 Become/Unbecome
 ===============
-
-Upgrade
--------
 
 Akka supports hotswapping the Actor’s message loop (e.g. its implementation) at
 runtime: invoke the ``context.become`` method from within the Actor.
@@ -875,8 +891,7 @@ See :ref:`supervision-directives` for more information.
 
 Use ``Kill`` like this:
 
-.. includecode:: code/docs/actor/UntypedActorDocTest.java
-   :include: kill
+.. includecode:: code/docs/actorlambda/ActorDocTest.java#kill
 
 Actors and exceptions
 =====================
@@ -943,7 +958,7 @@ this behavior, and ensure that there is only one call to ``preStart()``.
 One useful usage of this pattern is to disable creation of new ``ActorRefs`` for children during restarts. This can be
 achieved by overriding ``preRestart()``:
 
-.. includecode:: code/docs/actor/InitializationDocSpecJava.java#preStartInit
+.. includecode:: code/docs/actorlambda/InitializationDocTest.java#preStartInit
 
 Please note, that the child actors are *still restarted*, but no new ``ActorRef`` is created. One can recursively apply
 the same principles for the children, ensuring that their ``preStart()`` method is called only at the creation of their
@@ -971,13 +986,4 @@ until the initialization finishes, and replaying them after the actor became ini
   an uninitialized state might lead to the condition that it receives a user message before the initialization has been
   done.
 
-.. _actor-performance-lambda:
 
-Lambdas and Performance
-=======================
-
-There is one big difference between the optimized partial functions created by the Scala compiler and the ones created by the
-``ReceiveBuilder``. The partial functions created by the ``ReceiveBuilder`` consist of multiple lambda expressions for every match
-statement, where each lambda is an object referencing the code to be run. This is something that the JVM can have problems
-optimizing and the resulting code might not be as performant as the Scala equivalent or the corresponding
-:ref:`untyped actor <untyped-actors-java>` version.

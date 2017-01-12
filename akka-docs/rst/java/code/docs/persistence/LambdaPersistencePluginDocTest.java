@@ -15,6 +15,7 @@ import akka.actor.*;
 import akka.persistence.journal.leveldb.SharedLeveldbJournal;
 import akka.persistence.journal.leveldb.SharedLeveldbStore;
 import akka.japi.pf.ReceiveBuilder;
+
 import java.util.ArrayList;
 import scala.concurrent.Future;
 import java.util.function.Consumer;
@@ -39,17 +40,18 @@ public class LambdaPersistencePluginDocTest {
         selection.tell(new Identify(1), self());
       }
 
-      public SharedStorageUsage() {
-        receive(ReceiveBuilder.
-          match(ActorIdentity.class, ai -> {
+      @Override
+      public Receive initialReceive() {
+        return receiveBuilder()
+          .match(ActorIdentity.class, ai -> {
             if (ai.correlationId().equals(1)) {
               ActorRef store = ai.getRef();
               if (store != null) {
                 SharedLeveldbJournal.setStore(store, context().system());
               }
             }
-          }).build()
-        );
+          })
+          .build();
       }
     }
     //#shared-store-usage

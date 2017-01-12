@@ -42,7 +42,7 @@ public class InitializationDocTest extends AbstractJavaTest {
           getContext().become(receiveBuilder().
             matchEquals("U OK?", m2 -> {
               sender().tell(initializeMe, self());
-            })).build();
+            }).build());
         }).build();
     }
     //#messageInit

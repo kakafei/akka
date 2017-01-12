@@ -73,21 +73,22 @@ public class FaultHandlingDocSampleJava8 {
       context().setReceiveTimeout(Duration.create("15 seconds"));
     }
 
-    public Listener() {
-      receive(LoggingReceive.create(ReceiveBuilder.
-        match(Progress.class, progress -> {
+    @Override
+    public Receive initialReceive() {
+      return LoggingReceive.create(receiveBuilder()
+        .match(Progress.class, progress -> {
           log().info("Current progress: {} %", progress.percent);
           if (progress.percent >= 100.0) {
             log().info("That's all, shutting down");
             context().system().shutdown();
           }
-        }).
-        matchEquals(ReceiveTimeout.getInstance(), x -> {
+        })
+        .matchEquals(ReceiveTimeout.getInstance(), x -> {
           // No progress within 15 seconds, ServiceUnavailable
           log().error("Shutting down due to unavailable service");
           context().system().shutdown();
-        }).build(), context()
-      ));
+        })
+        .build(), getContext());
     }
   }
 
@@ -137,8 +138,9 @@ public class FaultHandlingDocSampleJava8 {
       return strategy;
     }
 
-    public Worker() {
-      receive(LoggingReceive.create(ReceiveBuilder.
+    @Override
+    public Receive initialReceive() {
+      return LoggingReceive.create(receiveBuilder().
         matchEquals(Start, x -> progressListener == null, x -> {
           progressListener = sender();
           context().system().scheduler().schedule(
@@ -159,8 +161,7 @@ public class FaultHandlingDocSampleJava8 {
               }
             }, context().dispatcher()), context().dispatcher())
             .to(progressListener);
-        }).build(), context())
-      );
+        }).build(), getContext());
     }
   }
 
@@ -266,8 +267,9 @@ public class FaultHandlingDocSampleJava8 {
       storage.tell(new Get(key), self());
     }
 
-    public CounterService() {
-      receive(LoggingReceive.create(ReceiveBuilder.
+    @Override
+    public Receive initialReceive() {
+      return LoggingReceive.create(receiveBuilder().
         match(Entry.class, entry -> entry.key.equals(key) && counter == null, entry -> {
           // Reply from Storage of the initial value, now we can create the Counter
           final long value = entry.value;
@@ -300,8 +302,7 @@ public class FaultHandlingDocSampleJava8 {
         matchEquals(Reconnect, o -> {
           // Re-establish storage after the scheduled delay
           initStorage();
-        }).build(), context())
-      );
+        }).build(), getContext());
     }
 
     void forwardOrPlaceInBacklog(Object msg) {
@@ -348,8 +349,11 @@ public class FaultHandlingDocSampleJava8 {
     public Counter(String key, long initialValue) {
       this.key = key;
       this.count = initialValue;
-
-      receive(LoggingReceive.create(ReceiveBuilder.
+    }
+    
+    @Override
+    public Receive initialReceive() {
+      return LoggingReceive.create(receiveBuilder().
         match(UseStorage.class, useStorage -> {
           storage = useStorage.storage;
           storeCount();
@@ -360,8 +364,7 @@ public class FaultHandlingDocSampleJava8 {
         }).
         matchEquals(GetCurrentCount, gcc -> {
           sender().tell(new CurrentCount(key, count), self());
-        }).build(), context())
-      );
+        }).build(), getContext());
     }
 
     void storeCount() {
@@ -433,8 +436,9 @@ public class FaultHandlingDocSampleJava8 {
 
     final DummyDB db = DummyDB.instance;
 
-    public Storage() {
-      receive(LoggingReceive.create(ReceiveBuilder.
+    @Override
+    public Receive initialReceive() {
+      return LoggingReceive.create(receiveBuilder().
         match(Store.class, store -> {
           db.save(store.entry.key, store.entry.value);
         }).
@@ -442,8 +446,7 @@ public class FaultHandlingDocSampleJava8 {
           Long value = db.load(get.key);
           sender().tell(new Entry(get.key, value == null ?
             Long.valueOf(0L) : value), self());
-        }).build(), context())
-      );
+        }).build(), getContext());
     }
   }
 
