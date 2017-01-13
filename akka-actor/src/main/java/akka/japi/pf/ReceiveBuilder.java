@@ -56,7 +56,6 @@ public class ReceiveBuilder {
   public Receive build() {
     PartialFunction<Object, BoxedUnit> empty = CaseStatement.empty();
 
-    statements = null;
     if (statements == null)
       return new Receive(empty);
     else
@@ -72,11 +71,6 @@ public class ReceiveBuilder {
   public static ReceiveBuilder create() {
     return new ReceiveBuilder();
   }
-
-  // FIXME
-  //  public static PartialFunction<Object, BoxedUnit> onMessage(FI.UnitApply<Object> apply) {
-  //    return matchAny(apply).build();
-  //  }
 
   /**
    * Add a new case statement to this builder.

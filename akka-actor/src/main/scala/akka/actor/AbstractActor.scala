@@ -160,6 +160,7 @@ abstract class AbstractActor extends Actor {
   override def receive: PartialFunction[Any, Unit] =
     initialReceive().onMessage.asInstanceOf[PartialFunction[Any, Unit]]
 
+  // FIXME move to companion?
   final def receiveBuilder(): ReceiveBuilder = ReceiveBuilder.create()
 }
 
