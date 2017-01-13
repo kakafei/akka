@@ -344,7 +344,7 @@ Watching Remote Actors
 ^^^^^^^^^^^^^^^^^^^^^^
 
 Watching a remote actor is API wise not different than watching a local actor, as described in
-:ref:`deathwatch-java`. However, it is important to note, that unlike in the local case, remoting has to handle
+:ref:`deathwatch-lambda`. However, it is important to note, that unlike in the local case, remoting has to handle
 when a remote actor does not terminate in a graceful way sending a system message to notify the watcher actor about
 the event, but instead being hosted on a system which stopped abruptly (crashed). These situations are handled
 by the built-in failure detector.

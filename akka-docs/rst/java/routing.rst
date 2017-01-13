@@ -112,7 +112,7 @@ Senders
 
 
 When a routee sends a message, it can :ref:`set itself as the sender
-<actors-tell-sender-java>`.
+<actors-tell-sender-lambda>`.
 
 .. includecode:: code/docs/jrouting/RouterDocTest.java#reply-with-self
 
@@ -551,7 +551,7 @@ PoisonPill Messages
 -------------------
 
 A ``PoisonPill`` message has special handling for all actors, including for routers. When any actor
-receives a ``PoisonPill`` message, that actor will be stopped. See the :ref:`poison-pill-java`
+receives a ``PoisonPill`` message, that actor will be stopped. See the :ref:`poison-pill-lambda`
 documentation for details.
 
 .. includecode:: code/docs/jrouting/RouterDocTest.java#poisonPill
@@ -564,7 +564,7 @@ However, a ``PoisonPill`` message sent to a router may still affect its routees,
 stop the router and when the router stops it also stops its children. Stopping children is normal
 actor behavior. The router will stop routees that it has created as children. Each child will
 process its current message and then stop. This may lead to some messages being unprocessed.
-See the documentation on :ref:`stopping-actors-java` for more information.
+See the documentation on :ref:`stopping-actors-lambda` for more information.
 
 If you wish to stop a router and its routees, but you would like the routees to first process all
 the messages currently in their mailboxes, then you should not send a ``PoisonPill`` message to the
@@ -590,7 +590,7 @@ Kill Messages
 -------------
 
 ``Kill`` messages are another type of message that has special handling. See
-:ref:`killing-actors-java` for general information about how actors handle ``Kill`` messages.
+:ref:`killing-actors-lambda` for general information about how actors handle ``Kill`` messages.
 
 When a ``Kill`` message is sent to a router the router processes the message internally, and does
 *not* send it on to its routees. The router will throw an ``ActorKilledException`` and fail. It

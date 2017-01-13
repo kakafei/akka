@@ -38,7 +38,7 @@ Actors give you:
 - Asynchronous, non-blocking and highly performant message-driven programming model.
 - Very lightweight event-driven processes (several million actors per GB of heap memory).
 
-See the chapter for :ref:`Scala <actors-scala>` or :ref:`Java <untyped-actors-java>`.
+See the chapter for :ref:`Scala <actors-scala>` or :ref:`Java <actors-lambda>`.
 
 Fault Tolerance
 ---------------
@@ -47,7 +47,7 @@ Fault Tolerance
 - Actor systems can span over multiple JVMs to provide truly fault-tolerant systems.
 - Excellent for writing highly fault-tolerant systems that self-heal and never stop.
 
-See :ref:`Fault Tolerance (Scala) <fault-tolerance-scala>` and :ref:`Fault Tolerance (Java) <fault-tolerance-java>`.
+See :ref:`Fault Tolerance (Scala) <fault-tolerance-scala>` and :ref:`Fault Tolerance (Java) <fault-tolerance-lambda>`.
 
 Location Transparency
 ---------------------
@@ -64,7 +64,7 @@ State changes experienced by an actor can optionally be persisted and replayed w
 restarted. This allows actors to recover their state, even after JVM crashes or when being migrated
 to another node.
 
-You can find more details in the respective chapter for :ref:`Java <persistence-java>` or :ref:`Scala <persistence-scala>`.
+You can find more details in the respective chapter for :ref:`Java <persistence-lambda>` or :ref:`Scala <persistence-scala>`.
 
 Scala and Java APIs
 ===================

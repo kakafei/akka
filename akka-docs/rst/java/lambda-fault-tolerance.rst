@@ -1,7 +1,7 @@
-.. _lambda-fault-tolerance-java:
+.. _fault-tolerance-lambda:
 
-Fault Tolerance (Java with Lambda Support)
-===========================================
+Fault Tolerance
+===============
 
 As explained in :ref:`actor-systems` each actor is the supervisor of its
 children, and as such each actor defines fault handling supervisor strategy.

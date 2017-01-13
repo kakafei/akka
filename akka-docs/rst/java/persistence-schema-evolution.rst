@@ -4,7 +4,7 @@
 Persistence - Schema Evolution
 ##############################
 
-When working on long running projects using :ref:`persistence-java`, or any kind of `Event Sourcing`_ architectures,
+When working on long running projects using :ref:`persistence-lambda`, or any kind of `Event Sourcing`_ architectures,
 schema evolution becomes one of the more important technical aspects of developing your application.
 The requirements as well as our own understanding of the business domain may (and will) change in time.
 
@@ -305,7 +305,7 @@ and should be deleted. You still have to be able to replay from a journal which 
 
 The problem of removing an event type from the domain model is not as much its removal, as the implications
 for the recovery mechanisms that this entails. For example, a naive way of filtering out certain kinds of events from
-being delivered to a recovering ``PersistentActor`` is pretty simple, as one can simply filter them out in an :ref:`EventAdapter <event-adapters-java>`:
+being delivered to a recovering ``PersistentActor`` is pretty simple, as one can simply filter them out in an :ref:`EventAdapter <event-adapters-lambda>`:
 
 
 .. figure:: ../images/persistence-drop-event.png

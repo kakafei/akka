@@ -513,7 +513,7 @@ If the storage backend API only supports synchronous, blocking writes,
 the methods can still be implemented in terms of the asynchronous API.
 Example of how to do that is in included in the 
 See :ref:`Journal plugin API for Scala <journal-plugin-api>`
-or :ref:`Journal plugin API for Java <journal-plugin-api-java>`.
+or :ref:`Journal plugin API for Java <journal-plugin-api-lambda>`.
 
 SnapshotStore: Snapshots can now be deleted asynchronously (and report failures)
 --------------------------------------------------------------------------------

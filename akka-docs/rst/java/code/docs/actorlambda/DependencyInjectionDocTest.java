@@ -34,7 +34,7 @@ public class DependencyInjectionDocTest extends AbstractJavaTest {
     @Override
     public Receive initialReceive() {
       return receiveBuilder()
-        .match(String.class, s -> {
+        .match(String.class, msg -> {
           sender().tell(s, self());
         })
         .build();

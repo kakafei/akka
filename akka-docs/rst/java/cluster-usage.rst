@@ -166,7 +166,7 @@ can also happen because of long GC pauses or system overload.
 
   We recommend against using the auto-down feature of Akka Cluster in production.
   This is crucial for correct behavior if you use :ref:`cluster-singleton-java` or
-  :ref:`cluster_sharding_java`, especially together with Akka :ref:`persistence-java`.
+  :ref:`cluster_sharding_java`, especially together with Akka :ref:`persistence-lambda`.
   For Akka Persistence with Cluster Sharding it can result in corrupt data in case
   of network partitions.
 
@@ -529,7 +529,7 @@ That is not done by the router. The configuration for a group looks like this:
 
 The actor paths without address information that are defined in ``routees.paths`` are used for selecting the
 actors to which the messages will be forwarded to by the router.
-Messages will be forwarded to the routees using :ref:`ActorSelection <actorSelection-java>`, so the same delivery semantics should be expected.
+Messages will be forwarded to the routees using :ref:`ActorSelection <actorselection-lambda>`, so the same delivery semantics should be expected.
 It is possible to limit the lookup of routees to member nodes tagged with a certain role by specifying ``use-role``.
 
 ``max-total-nr-of-instances`` defines total number of routees in the cluster. By default ``max-total-nr-of-instances``

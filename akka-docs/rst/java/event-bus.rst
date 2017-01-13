@@ -110,7 +110,7 @@ Actor Classification
 --------------------
 
 This classification was originally developed specifically for implementing
-:ref:`DeathWatch <deathwatch-java>`: subscribers as well as classifiers are of
+:ref:`DeathWatch <deathwatch-lambda>`: subscribers as well as classifiers are of
 type :class:`ActorRef`.
 
 This classification requires an :class:`ActorSystem` in order to perform book-keeping
@@ -187,7 +187,7 @@ event class have been done)
 Dead Letters
 ------------
 
-As described at :ref:`stopping-actors-java`, messages queued when an actor
+As described at :ref:`stopping-actors-lambda`, messages queued when an actor
 terminates or sent after its death are re-routed to the dead letter mailbox,
 which by default will publish the messages wrapped in :class:`DeadLetter`. This
 wrapper holds the original sender, receiver and message of the envelope which

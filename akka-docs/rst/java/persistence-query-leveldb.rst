@@ -90,7 +90,7 @@ all domain events of an Aggregate Root type.
 
 .. includecode:: code/docs/persistence/query/LeveldbPersistenceQueryDocTest.java#EventsByTag
 
-To tag events you create an :ref:`event-adapters-java` that wraps the events in a ``akka.persistence.journal.Tagged``
+To tag events you create an :ref:`event-adapters-lambda` that wraps the events in a ``akka.persistence.journal.Tagged``
 with the given ``tags``.
 
 .. includecode:: code/docs/persistence/query/LeveldbPersistenceQueryDocTest.java#tagger

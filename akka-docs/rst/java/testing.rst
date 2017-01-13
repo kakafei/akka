@@ -58,8 +58,8 @@ section below.
 .. warning::
   Due to the synchronous nature of ``TestActorRef`` it will **not** work with some support
   traits that Akka provides as they require asynchronous behaviours to function properly.
-  Examples of traits that do not mix well with test actor refs are :ref:`PersistentActor <event-sourcing-java>`
-  and :ref:`AtLeastOnceDelivery <at-least-once-delivery-java>` provided by :ref:`Akka Persistence <persistence-java>`.
+  Examples of traits that do not mix well with test actor refs are :ref:`PersistentActor <event-sourcing-lambda>`
+  and :ref:`AtLeastOnceDelivery <at-least-once-delivery-lambda>` provided by :ref:`Akka Persistence <persistence-lambda>`.
 
 Obtaining a Reference to an :class:`Actor`
 ------------------------------------------

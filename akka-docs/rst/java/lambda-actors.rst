@@ -1,8 +1,8 @@
-.. _lambda-actors-java:
+.. _actors-lambda:
 
-###################################
- Actors (Java with Lambda Support)
-###################################
+########
+ Actors 
+########
 
 The `Actor Model`_ provides a higher level of abstraction for writing concurrent
 and distributed systems. It alleviates the developer from having to deal with
@@ -303,7 +303,7 @@ occupying it. ``ActorSelection`` cannot be watched for this reason. It is
 possible to resolve the current incarnation's ``ActorRef`` living under the
 path by sending an ``Identify`` message to the ``ActorSelection`` which
 will be replied to with an ``ActorIdentity`` containing the correct reference
-(see :ref:`actorSelection-lambda`). This can also be done with the ``resolveOne``
+(see :ref:`actorselection-lambda`). This can also be done with the ``resolveOne``
 method of the :class:`ActorSelection`, which returns a ``Future`` of the matching
 :class:`ActorRef`.
 
@@ -412,7 +412,7 @@ to run after message queuing has been disabled for this actor, i.e. messages
 sent to a stopped actor will be redirected to the :obj:`deadLetters` of the
 :obj:`ActorSystem`.
 
-.. _actorSelection-lambda:
+.. _actorselection-lambda:
 
 Identifying Actors via Actor Selection
 ======================================
@@ -434,7 +434,7 @@ result:
   It is always preferable to communicate with other Actors using their ActorRef
   instead of relying upon ActorSelection. Exceptions are
 
-    * sending messages using the :ref:`at-least-once-delivery-java-lambda` facility
+    * sending messages using the :ref:`at-least-once-delivery-lambda` facility
     * initiating first contact with a remote system
 
   In all other cases ActorRefs can be provided during Actor creation or
@@ -475,7 +475,7 @@ of that reply is guaranteed, it still is a normal message.
 You can also acquire an :class:`ActorRef` for an :class:`ActorSelection` with
 the ``resolveOne`` method of the :class:`ActorSelection`. It returns a
 ``Future`` of the matching :class:`ActorRef` if such an actor exists (see also
-:ref:`actor-java-lambda` for Java compatibility). It is completed with failure
+:ref:`scala-java-compat` for Java compatibility). It is completed with failure
 [[akka.actor.ActorNotFound]] if no such actor exists or the identification
 didn't complete within the supplied `timeout`.
 

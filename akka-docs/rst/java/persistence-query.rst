@@ -4,7 +4,7 @@
 Persistence Query
 #################
 
-Akka persistence query complements :ref:`persistence-java` by providing a universal asynchronous stream based
+Akka persistence query complements :ref:`persistence-lambda` by providing a universal asynchronous stream based
 query interface that various journal plugins can implement in order to expose their query capabilities.
 
 The most typical use case of persistence query is implementing the so-called query side (also known as "read side")
@@ -84,7 +84,7 @@ If your usage does not require a live stream, you can use the ``currentPersisten
 EventsByPersistenceIdQuery and CurrentEventsByPersistenceIdQuery
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``eventsByPersistenceId``  is a query equivalent to replaying a :ref:`PersistentActor <event-sourcing-java>`,
+``eventsByPersistenceId``  is a query equivalent to replaying a :ref:`PersistentActor <event-sourcing-lambda>`,
 however, since it is a stream it is possible to keep it alive and watch for additional incoming events persisted by the
 persistent actor identified by the given ``persistenceId``. 
 
@@ -104,7 +104,7 @@ The goal of this query is to allow querying for all events which are "tagged" wi
 That includes the use case to query all domain events of an Aggregate Root type.
 Please refer to your read journal plugin's documentation to find out if and how it is supported.
 
-Some journals may support tagging of events via an :ref:`event-adapters-java` that wraps the events in a
+Some journals may support tagging of events via an :ref:`event-adapters-lambda` that wraps the events in a
 ``akka.persistence.journal.Tagged`` with the given ``tags``. The journal may support other ways of doing tagging - again,
 how exactly this is implemented depends on the used journal. Here is an example of such a tagging event adapter:
 
@@ -119,7 +119,7 @@ how exactly this is implemented depends on the used journal. Here is an example 
   on relational databases, yet may be hard to implement efficiently on plain key-value datastores.
 
 In the example below we query all events which have been tagged (we assume this was performed by the write-side using an
-:ref:`EventAdapter <event-adapters-java>`, or that the journal is smart enough that it can figure out what we mean by this
+:ref:`EventAdapter <event-adapters-lambda>`, or that the journal is smart enough that it can figure out what we mean by this
 tag - for example if the journal stored the events as json it may try to find those with the field ``tag`` set to this value etc.).
 
 .. includecode:: code/docs/persistence/PersistenceQueryDocTest.java#events-by-tag
@@ -154,7 +154,7 @@ specialised query object, as demonstrated in the sample below:
 
 Performance and denormalization
 ===============================
-When building systems using :ref:`event-sourcing-java` and CQRS (`Command & Query Responsibility Segregation`_) techniques
+When building systems using :ref:`event-sourcing-lambda` and CQRS (`Command & Query Responsibility Segregation`_) techniques
 it is tremendously important to realise that the write-side has completely different needs from the read-side,
 and separating those concerns into datastores that are optimised for either side makes it possible to offer the best
 experience for the write and read sides independently.

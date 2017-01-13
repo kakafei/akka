@@ -155,7 +155,7 @@ Thereafter the coordinator will reply to requests for the location of
 the shard and thereby allocate a new home for the shard and then buffered messages in the
 ``ShardRegion`` actors are delivered to the new location. This means that the state of the entities
 are not transferred or migrated. If the state of the entities are of importance it should be
-persistent (durable), e.g. with :ref:`persistence-java`, so that it can be recovered at the new
+persistent (durable), e.g. with :ref:`persistence-lambda`, so that it can be recovered at the new
 location.
 
 The logic that decides which shards to rebalance is defined in a pluggable shard
@@ -167,7 +167,7 @@ must be to begin the rebalancing. This strategy can be replaced by an applicatio
 implementation.
 
 The state of shard locations in the ``ShardCoordinator`` is persistent (durable) with
-:ref:`persistence-java` to survive failures. Since it is running in a cluster :ref:`persistence-java`
+:ref:`persistence-lambda` to survive failures. Since it is running in a cluster :ref:`persistence-lambda`
 must be configured with a distributed journal. When a crashed or unreachable coordinator
 node has been removed (via down) from the cluster a new ``ShardCoordinator`` singleton
 actor will take over and the state is recovered. During such a failure period shards
@@ -178,7 +178,7 @@ As long as a sender uses the same ``ShardRegion`` actor to deliver messages to a
 actor the order of the messages is preserved. As long as the buffer limit is not reached
 messages are delivered on a best effort basis, with at-most once delivery semantics,
 in the same way as ordinary message sending. Reliable end-to-end messaging, with
-at-least-once semantics can be added by using ``AtLeastOnceDelivery``  in :ref:`persistence-java`.
+at-least-once semantics can be added by using ``AtLeastOnceDelivery``  in :ref:`persistence-lambda`.
 
 Some additional latency is introduced for messages targeted to new or previously
 unused shards due to the round-trip to the coordinator. Rebalancing of shards may
@@ -188,7 +188,7 @@ shard resolution, e.g. to avoid too fine grained shards.
 Distributed Data Mode
 ---------------------
 
-Instead of using :ref:`persistence-java` it is possible to use the :ref:`distributed_data_java` module
+Instead of using :ref:`persistence-lambda` it is possible to use the :ref:`distributed_data_java` module
 as storage for the state of the sharding coordinator. In such case the state of the 
 ``ShardCoordinator`` will be replicated inside a cluster by the :ref:`distributed_data_java` module with
 ``WriteMajority``/``ReadMajority`` consistency.
@@ -267,7 +267,7 @@ for that entity has been received in the ``Shard``. Entities will not be restart
 using a ``Passivate``.
 
 Note that the state of the entities themselves will not be restored unless they have been made persistent,
-e.g. with :ref:`persistence-java`.
+e.g. with :ref:`persistence-lambda`.
 
 Supervision
 -----------

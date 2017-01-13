@@ -215,7 +215,7 @@ Watching Remote Actors
 ^^^^^^^^^^^^^^^^^^^^^^
 
 Watching a remote actor is not different than watching a local actor, as described in
-:ref:`deathwatch-java`.
+:ref:`deathwatch-lambda`.
 
 Failure Detector
 ----------------

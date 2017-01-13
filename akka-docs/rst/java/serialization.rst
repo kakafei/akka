@@ -129,7 +129,7 @@ For serialization of data that need to evolve over time the ``SerializerWithStri
 is recommended instead of ``Serializer`` because the manifest (type hint) is a ``String``
 instead of a ``Class``. That means that the class can be moved/removed and the serializer
 can still deserialize old data by matching  on the ``String``. This is especially useful
-for :ref:`persistence-java`.
+for :ref:`persistence-lambda`.
 
 The manifest string can also encode a version number that can be used in ``fromBinary`` to
 deserialize in different ways to migrate old data to new domain objects.
@@ -215,7 +215,7 @@ There is also a default remote address which is the one used by cluster support
 Deep serialization of Actors
 ----------------------------
 
-The recommended approach to do deep serialization of internal actor state is to use Akka :ref:`persistence-java`.
+The recommended approach to do deep serialization of internal actor state is to use Akka :ref:`persistence-lambda`.
 
 A Word About Java Serialization
 ===============================
