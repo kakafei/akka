@@ -659,13 +659,13 @@ public class FutureDocTest extends AbstractJavaTest {
   public static class MyActor extends UntypedActor {
     public void onReceive(Object message) {
       if (message instanceof String) {
-        getSender().tell(((String) message).toUpperCase(), getSelf());
+        sender().tell(((String) message).toUpperCase(), self());
       } else if (message instanceof Integer) {
         int i = ((Integer) message).intValue();
         if (i < 0) {
-          getSender().tell(new Failure(new ArithmeticException("Negative values not supported")), getSelf());
+          sender().tell(new Failure(new ArithmeticException("Negative values not supported")), self());
         } else {
-          getSender().tell(i, getSelf());
+          sender().tell(i, self());
         }
       } else {
         unhandled(message);

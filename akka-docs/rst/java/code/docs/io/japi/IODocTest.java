@@ -49,24 +49,24 @@ public class IODocTest extends AbstractJavaTest {
     @Override
     public void preStart() throws Exception {
       final ActorRef tcp = Tcp.get(getContext().system()).manager();
-      tcp.tell(TcpMessage.bind(getSelf(),
-          new InetSocketAddress("localhost", 0), 100), getSelf());
+      tcp.tell(TcpMessage.bind(self(),
+          new InetSocketAddress("localhost", 0), 100), self());
     }
 
     @Override
     public void onReceive(Object msg) throws Exception {
       if (msg instanceof Bound) {
-        manager.tell(msg, getSelf());
+        manager.tell(msg, self());
 
       } else if (msg instanceof CommandFailed) {
-        getContext().stop(getSelf());
+        getContext().stop(self());
       
       } else if (msg instanceof Connected) {
         final Connected conn = (Connected) msg;
-        manager.tell(conn, getSelf());
+        manager.tell(conn, self());
         final ActorRef handler = getContext().actorOf(
             Props.create(SimplisticHandler.class));
-        getSender().tell(TcpMessage.register(handler), getSelf());
+        sender().tell(TcpMessage.register(handler), self());
       }
     }
     
@@ -81,9 +81,9 @@ public class IODocTest extends AbstractJavaTest {
       if (msg instanceof Received) {
         final ByteString data = ((Received) msg).data();
         System.out.println(data);
-        getSender().tell(TcpMessage.write(data), getSelf());
+        sender().tell(TcpMessage.write(data), self());
       } else if (msg instanceof ConnectionClosed) {
-        getContext().stop(getSelf());
+        getContext().stop(self());
       }
     }
   }
@@ -105,19 +105,19 @@ public class IODocTest extends AbstractJavaTest {
       this.listener = listener;
       
       final ActorRef tcp = Tcp.get(getContext().system()).manager();
-      tcp.tell(TcpMessage.connect(remote), getSelf());
+      tcp.tell(TcpMessage.connect(remote), self());
     }
 
     @Override
     public void onReceive(Object msg) throws Exception {
       if (msg instanceof CommandFailed) {
-        listener.tell("failed", getSelf());
-        getContext().stop(getSelf());
+        listener.tell("failed", self());
+        getContext().stop(self());
         
       } else if (msg instanceof Connected) {
-        listener.tell(msg, getSelf());
-        getSender().tell(TcpMessage.register(getSelf()), getSelf());
-        getContext().become(connected(getSender()));
+        listener.tell(msg, self());
+        sender().tell(TcpMessage.register(self()), self());
+        getContext().become(connected(sender()));
       }
     }
 
@@ -127,19 +127,19 @@ public class IODocTest extends AbstractJavaTest {
         public void apply(Object msg) throws Exception {
           
           if (msg instanceof ByteString) {
-            connection.tell(TcpMessage.write((ByteString) msg), getSelf());
+            connection.tell(TcpMessage.write((ByteString) msg), self());
         
           } else if (msg instanceof CommandFailed) {
             // OS kernel socket buffer was full
           
           } else if (msg instanceof Received) {
-            listener.tell(((Received) msg).data(), getSelf());
+            listener.tell(((Received) msg).data(), self());
           
           } else if (msg.equals("close")) {
-            connection.tell(TcpMessage.close(), getSelf());
+            connection.tell(TcpMessage.close(), self());
           
           } else if (msg instanceof ConnectionClosed) {
-            getContext().stop(getSelf());
+            getContext().stop(self());
           }
         }
       };

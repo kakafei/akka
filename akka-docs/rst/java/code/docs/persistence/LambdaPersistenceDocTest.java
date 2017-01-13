@@ -128,7 +128,7 @@ public class LambdaPersistenceDocTest {
           Duration.create(3, TimeUnit.SECONDS),
           Duration.create(30, TimeUnit.SECONDS),
           0.2);
-        context().actorOf(props, "mySupervisor");
+        getContext().actorOf(props, "mySupervisor");
         super.preStart();
       }
       //#backoff
@@ -303,7 +303,7 @@ public class LambdaPersistenceDocTest {
 
     class MyActor extends AbstractActor {
       private final ActorRef persistentActor =
-        context().actorOf(Props.create(MyPersistentActor.class));
+        getContext().actorOf(Props.create(MyPersistentActor.class));
 
         @Override
         public Receive initialReceive() {
@@ -546,7 +546,7 @@ public class LambdaPersistenceDocTest {
       public Receive defineReceiveCommand() {
         return receiveBuilder()
           .match(Shutdown.class, shutdown -> {
-            context().stop(self());
+            getContext().stop(self());
           })
           .match(String.class, msg -> {
             System.out.println(msg);

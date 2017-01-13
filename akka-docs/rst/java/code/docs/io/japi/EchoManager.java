@@ -22,7 +22,7 @@ import akka.io.TcpMessage;
 public class EchoManager extends UntypedActor {
 
   final LoggingAdapter log = Logging
-      .getLogger(getContext().system(), getSelf());
+      .getLogger(getContext().system(), self());
 
   final Class<?> handlerClass;
 
@@ -41,14 +41,14 @@ public class EchoManager extends UntypedActor {
     final ActorRef tcpManager = Tcp.get(getContext().system()).manager();
     //#manager
     tcpManager.tell(
-        TcpMessage.bind(getSelf(), new InetSocketAddress("localhost", 0), 100),
-        getSelf());
+        TcpMessage.bind(self(), new InetSocketAddress("localhost", 0), 100),
+        self());
   }
 
   @Override
   public void postRestart(Throwable arg0) throws Exception {
     // do not restart
-    getContext().stop(getSelf());
+    getContext().stop(self());
   }
 
   @Override
@@ -59,7 +59,7 @@ public class EchoManager extends UntypedActor {
       final CommandFailed failed = (CommandFailed) msg;
       if (failed.cmd() instanceof Bind) {
         log.warning("cannot bind to [{}]", ((Bind) failed.cmd()).localAddress());
-        getContext().stop(getSelf());
+        getContext().stop(self());
       } else {
         log.warning("unknown command failed [{}]", failed.cmd());
       }
@@ -67,13 +67,13 @@ public class EchoManager extends UntypedActor {
     if (msg instanceof Connected) {
       final Connected conn = (Connected) msg;
       log.info("received connection from [{}]", conn.remoteAddress());
-      final ActorRef connection = getSender();
+      final ActorRef connection = sender();
       final ActorRef handler = getContext().actorOf(
           Props.create(handlerClass, connection, conn.remoteAddress()));
       //#echo-manager
       connection.tell(TcpMessage.register(handler,
           true, // <-- keepOpenOnPeerClosed flag
-          true), getSelf());
+          true), self());
       //#echo-manager
     }
   }

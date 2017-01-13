@@ -303,7 +303,7 @@ public class IntegrationDocTest extends AbstractJavaTest {
         // ... process message
         String reply = word.toUpperCase();
         // reply to the ask
-        getSender().tell(reply, getSelf());
+        sender().tell(reply, self());
       } else {
         unhandled(message);
       }

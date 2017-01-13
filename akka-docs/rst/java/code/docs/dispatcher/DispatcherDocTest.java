@@ -17,7 +17,7 @@ import scala.concurrent.ExecutionContext;
 //#imports
 import akka.actor.*;
 //#imports
-
+import akka.actor.AbstractActor.Receive;
 //#imports-prio
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -126,18 +126,21 @@ public class DispatcherDocTest extends AbstractJavaTest {
     JavaTestKit probe = new JavaTestKit(system);
     //#prio-dispatcher
 
-    class Demo extends UntypedActor {
+    class Demo extends AbstractActor {
       LoggingAdapter log = Logging.getLogger(getContext().system(), this);
       {
         for (Object msg : new Object[] { "lowpriority", "lowpriority",
             "highpriority", "pigdog", "pigdog2", "pigdog3", "highpriority",
             PoisonPill.getInstance() }) {
-          getSelf().tell(msg, getSelf());
+          self().tell(msg, self());
         }
       }
 
-      public void onReceive(Object message) {
-        log.info(message.toString());
+      @Override
+      public Receive initialReceive() {
+        return receiveBuilder().matchAny(message -> {
+          log.info(message.toString());
+        }).build();
       }
     }
 
@@ -166,17 +169,20 @@ public class DispatcherDocTest extends AbstractJavaTest {
     JavaTestKit probe = new JavaTestKit(system);
     //#control-aware-dispatcher
 
-    class Demo extends UntypedActor {
+    class Demo extends AbstractActor {
       LoggingAdapter log = Logging.getLogger(getContext().system(), this);
       {
         for (Object msg : new Object[] { "foo", "bar", new MyControlMessage(),
                 PoisonPill.getInstance() }) {
-          getSelf().tell(msg, getSelf());
+          self().tell(msg, self());
         }
       }
 
-      public void onReceive(Object message) {
-        log.info(message.toString());
+      @Override
+      public Receive initialReceive() {
+        return receiveBuilder().matchAny(message -> {
+          log.info(message.toString());
+        }).build();
       }
     }
 

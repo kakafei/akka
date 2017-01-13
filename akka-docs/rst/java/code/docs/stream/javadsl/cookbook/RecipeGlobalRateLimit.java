@@ -87,7 +87,7 @@ public class RecipeGlobalRateLimit extends RecipeTest {
         this.tokenRefreshPeriod,
         self(),
         REPLENISH_TOKENS,
-        context().system().dispatcher(),
+        getContext().system().dispatcher(),
         self());
     }
     

@@ -33,7 +33,7 @@ import static java.util.stream.Collectors.toList;
 //#events-by-tag-publisher
 class MyEventsByTagJavaPublisher extends AbstractActorPublisher<EventEnvelope> {
   private final Serialization serialization =
-    SerializationExtension.get(context().system());
+    SerializationExtension.get(getContext().system());
 
   private final Connection connection;
 
@@ -54,10 +54,10 @@ class MyEventsByTagJavaPublisher extends AbstractActorPublisher<EventEnvelope> {
     this.tag = tag;
     this.currentOffset = offset;
 
-    final Scheduler scheduler = context().system().scheduler();
+    final Scheduler scheduler = getContext().system().scheduler();
     this.continueTask = scheduler
       .schedule(refreshInterval, refreshInterval, self(), CONTINUE,
-                context().dispatcher(), self());
+                getContext().dispatcher(), self());
   }
   
   @Override
@@ -68,7 +68,7 @@ class MyEventsByTagJavaPublisher extends AbstractActorPublisher<EventEnvelope> {
         deliverBuf();
       })
       .match(Cancel.class, (in) -> {
-        context().stop(self());
+        getContext().stop(self());
       })
       .build();
   }

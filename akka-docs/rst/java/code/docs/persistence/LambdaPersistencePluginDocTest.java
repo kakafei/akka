@@ -43,7 +43,7 @@ public class LambdaPersistencePluginDocTest {
       @Override
       public void preStart() throws Exception {
         String path = "akka.tcp://example@127.0.0.1:2552/user/store";
-        ActorSelection selection = context().actorSelection(path);
+        ActorSelection selection = getContext().actorSelection(path);
         selection.tell(new Identify(1), self());
       }
 
@@ -54,7 +54,7 @@ public class LambdaPersistencePluginDocTest {
             if (ai.correlationId().equals(1)) {
               ActorRef store = ai.getRef();
               if (store != null) {
-                SharedLeveldbJournal.setStore(store, context().system());
+                SharedLeveldbJournal.setStore(store, getContext().system());
               }
             }
           })

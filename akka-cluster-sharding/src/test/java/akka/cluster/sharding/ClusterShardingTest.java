@@ -137,7 +137,7 @@ public class ClusterShardingTest {
     @Override
     public void preStart() throws Exception {
       super.preStart();
-      context().setReceiveTimeout(Duration.create(120, SECONDS));
+      getContext().setReceiveTimeout(Duration.create(120, SECONDS));
     }
 
     void updateState(CounterChanged event) {
@@ -187,13 +187,13 @@ public class ClusterShardingTest {
 
     @Override
     public Receive initialReceive() {
-      final ActorSystem system = context().system();
+      final ActorSystem system = getContext().system();
       final Cluster cluster = Cluster.get(system);
       final ActorRef region = ClusterSharding.get(system).shardRegion("Entity");
 
       return receiveBuilder().
         match(String.class, s -> s.equals("leave"), s -> {
-          context().watch(region);
+          getContext().watch(region);
           region.tell(ShardRegion.gracefulShutdownInstance(), self());
         })
         .match(Terminated.class, t -> t.actor().equals(region), t -> {
@@ -203,8 +203,8 @@ public class ClusterShardingTest {
         })
         .match(String.class, s -> s.equals("member-removed"), s -> {
           // Let singletons hand over gracefully before stopping the system
-          context().system().scheduler().scheduleOnce(Duration.create(10, SECONDS),
-              self(), "stop-system", context().dispatcher(), self());
+          getContext().system().scheduler().scheduleOnce(Duration.create(10, SECONDS),
+              self(), "stop-system", getContext().dispatcher(), self());
         })
         .match(String.class, s -> s.equals("stop-system"), s -> {
           system.terminate();

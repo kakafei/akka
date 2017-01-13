@@ -72,7 +72,7 @@ public class FaultHandlingTest extends AbstractJavaTest {
     public Receive initialReceive() {
       return receiveBuilder()
         .match(Props.class, props -> {
-          sender().tell(context().actorOf(props), self());
+          sender().tell(getContext().actorOf(props), self());
         })
         .build();
     }
@@ -103,7 +103,7 @@ public class FaultHandlingTest extends AbstractJavaTest {
     public Receive initialReceive() {
       return receiveBuilder()
         .match(Props.class, props -> {
-          sender().tell(context().actorOf(props), self());
+          sender().tell(getContext().actorOf(props), self());
         })
         .build();
     }

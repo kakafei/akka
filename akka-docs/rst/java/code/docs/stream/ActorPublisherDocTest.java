@@ -92,7 +92,7 @@ public class ActorPublisherDocTest extends AbstractJavaTest {
           }
         })
         .match(ActorPublisherMessage.Request.class, request -> deliverBuf())
-        .match(ActorPublisherMessage.Cancel.class, cancel -> context().stop(self()))
+        .match(ActorPublisherMessage.Cancel.class, cancel -> getContext().stop(self()))
         .build();
     }
 

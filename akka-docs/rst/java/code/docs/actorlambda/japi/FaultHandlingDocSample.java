@@ -67,7 +67,7 @@ public class FaultHandlingDocSample {
     public void preStart() {
       // If we don't get any progress within 15 seconds then the service
       // is unavailable
-      context().setReceiveTimeout(Duration.create("15 seconds"));
+      getContext().setReceiveTimeout(Duration.create("15 seconds"));
     }
 
     @Override
@@ -77,13 +77,13 @@ public class FaultHandlingDocSample {
           log().info("Current progress: {} %", progress.percent);
           if (progress.percent >= 100.0) {
             log().info("That's all, shutting down");
-            context().system().terminate();
+            getContext().system().terminate();
           }
         }).
         matchEquals(ReceiveTimeout.getInstance(), x -> {
           // No progress within 15 seconds, ServiceUnavailable
           log().error("Shutting down due to unavailable service");
-          context().system().terminate();
+          getContext().system().terminate();
         }).build(), getContext());
     }
   }
@@ -119,7 +119,7 @@ public class FaultHandlingDocSample {
     // The sender of the initial Start message will continuously be notified
     // about progress
     ActorRef progressListener;
-    final ActorRef counterService = context().actorOf(
+    final ActorRef counterService = getContext().actorOf(
       Props.create(CounterService.class), "counter");
     final int totalCount = 51;
 
@@ -139,9 +139,9 @@ public class FaultHandlingDocSample {
       return LoggingReceive.create(receiveBuilder().
         matchEquals(Start, x -> progressListener == null, x -> {
           progressListener = sender();
-          context().system().scheduler().schedule(
+          getContext().system().scheduler().schedule(
             Duration.Zero(), Duration.create(1, "second"), self(), Do,
-            context().dispatcher(), null
+            getContext().dispatcher(), null
           );
         }).
         matchEquals(Do, x -> {
@@ -155,7 +155,7 @@ public class FaultHandlingDocSample {
               public Progress apply(CurrentCount c) {
                 return new Progress(100.0 * c.count / totalCount);
               }
-            }, context().dispatcher()), context().dispatcher())
+            }, getContext().dispatcher()), getContext().dispatcher())
             .to(progressListener);
         }).build(), getContext());
     }
@@ -254,7 +254,7 @@ public class FaultHandlingDocSample {
      * when it has been terminated.
      */
     void initStorage() {
-      storage = context().watch(context().actorOf(
+      storage = getContext().watch(getContext().actorOf(
         Props.create(Storage.class), "storage"));
       // Tell the counter, if any, to use the new storage
       if (counter != null)
@@ -269,7 +269,7 @@ public class FaultHandlingDocSample {
         match(Entry.class, entry -> entry.key.equals(key) && counter == null, entry -> {
           // Reply from Storage of the initial value, now we can create the Counter
           final long value = entry.value;
-          counter = context().actorOf(Props.create(Counter.class, key, value));
+          counter = getContext().actorOf(Props.create(Counter.class, key, value));
           // Tell the counter to use current storage
           counter.tell(new UseStorage(storage), self());
           // and send the buffered backlog to the counter
@@ -291,9 +291,9 @@ public class FaultHandlingDocSample {
           // Tell the counter that there is no storage for the moment
           counter.tell(new UseStorage(null), self());
           // Try to re-establish storage after while
-          context().system().scheduler().scheduleOnce(
+          getContext().system().scheduler().scheduleOnce(
             Duration.create(10, "seconds"), self(), Reconnect,
-            context().dispatcher(), null);
+            getContext().dispatcher(), null);
         }).
         matchEquals(Reconnect, o -> {
           // Re-establish storage after the scheduled delay
@@ -311,7 +311,7 @@ public class FaultHandlingDocSample {
             " lack of initial value");
         backlog.add(new SenderMsgPair(sender(), msg));
       } else {
-        counter.forward(msg, context());
+        counter.forward(msg, getContext());
       }
     }
   }

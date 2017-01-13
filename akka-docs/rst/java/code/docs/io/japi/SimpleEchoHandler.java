@@ -23,7 +23,7 @@ import akka.util.ByteString;
 public class SimpleEchoHandler extends UntypedActor {
   
   final LoggingAdapter log = Logging
-      .getLogger(getContext().system(), getSelf());
+      .getLogger(getContext().system(), self());
 
   final ActorRef connection;
   final InetSocketAddress remote;
@@ -45,12 +45,12 @@ public class SimpleEchoHandler extends UntypedActor {
     if (msg instanceof Received) {
       final ByteString data = ((Received) msg).data();
       buffer(data);
-      connection.tell(TcpMessage.write(data, ACK), getSelf());
+      connection.tell(TcpMessage.write(data, ACK), self());
       // now switch behavior to “waiting for acknowledgement”
       getContext().become(buffering, false);
 
     } else if (msg instanceof ConnectionClosed) {
-      getContext().stop(getSelf());
+      getContext().stop(self());
     }
   }
 
@@ -68,7 +68,7 @@ public class SimpleEchoHandler extends UntypedActor {
           closing = true;
         } else {
           // could also be ErrorClosed, in which case we just give up
-          getContext().stop(getSelf());
+          getContext().stop(self());
         }
       }
     }
@@ -95,11 +95,11 @@ public class SimpleEchoHandler extends UntypedActor {
 
     if (stored > maxStored) {
       log.warning("drop connection to [{}] (buffer overrun)", remote);
-      getContext().stop(getSelf());
+      getContext().stop(self());
 
     } else if (stored > highWatermark) {
       log.debug("suspending reading");
-      connection.tell(TcpMessage.suspendReading(), getSelf());
+      connection.tell(TcpMessage.suspendReading(), self());
       suspended = true;
     }
   }
@@ -111,18 +111,18 @@ public class SimpleEchoHandler extends UntypedActor {
 
     if (suspended && stored < lowWatermark) {
       log.debug("resuming reading");
-      connection.tell(TcpMessage.resumeReading(), getSelf());
+      connection.tell(TcpMessage.resumeReading(), self());
       suspended = false;
     }
     
     if (storage.isEmpty()) {
       if (closing) {
-        getContext().stop(getSelf());
+        getContext().stop(self());
       } else {
         getContext().unbecome();
       }
     } else {
-      connection.tell(TcpMessage.write(storage.peek(), ACK), getSelf());
+      connection.tell(TcpMessage.write(storage.peek(), ACK), self());
     }
   }
   //#simple-helpers

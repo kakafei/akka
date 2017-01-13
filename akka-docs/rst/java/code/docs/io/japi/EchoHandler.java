@@ -26,7 +26,7 @@ import akka.util.ByteString;
 public class EchoHandler extends UntypedActor {
 
   final LoggingAdapter log = Logging
-      .getLogger(getContext().system(), getSelf());
+      .getLogger(getContext().system(), self());
 
   final ActorRef connection;
   final InetSocketAddress remote;
@@ -58,7 +58,7 @@ public class EchoHandler extends UntypedActor {
     public void apply(Object msg) throws Exception {
       if (msg instanceof Received) {
         final ByteString data = ((Received) msg).data();
-        connection.tell(TcpMessage.write(data, new Ack(currentOffset())), getSelf());
+        connection.tell(TcpMessage.write(data, new Ack(currentOffset())), self());
         buffer(data);
 
       } else if (msg instanceof Integer) {
@@ -66,14 +66,14 @@ public class EchoHandler extends UntypedActor {
 
       } else if (msg instanceof CommandFailed) {
         final Write w = (Write) ((CommandFailed) msg).cmd();
-        connection.tell(TcpMessage.resumeWriting(), getSelf());
+        connection.tell(TcpMessage.resumeWriting(), self());
         getContext().become(buffering((Ack) w.ack()));
 
       } else if (msg instanceof ConnectionClosed) {
         final ConnectionClosed cl = (ConnectionClosed) msg;
         if (cl.isPeerClosed()) {
           if (storage.isEmpty()) {
-            getContext().stop(getSelf());
+            getContext().stop(self());
           } else {
             getContext().become(closing);
           }
@@ -101,7 +101,7 @@ public class EchoHandler extends UntypedActor {
           if (((ConnectionClosed) msg).isPeerClosed())
             peerClosed = true;
           else
-            getContext().stop(getSelf());
+            getContext().stop(self());
 
         } else if (msg instanceof Integer) {
           final int ack = (Integer) msg;
@@ -112,7 +112,7 @@ public class EchoHandler extends UntypedActor {
 
             if (storage.isEmpty()) {
               if (peerClosed)
-                getContext().stop(getSelf());
+                getContext().stop(self());
               else
                 getContext().become(writing);
 
@@ -143,12 +143,12 @@ public class EchoHandler extends UntypedActor {
     public void apply(Object msg) throws Exception {
       if (msg instanceof CommandFailed) {
         // the command can only have been a Write
-        connection.tell(TcpMessage.resumeWriting(), getSelf());
+        connection.tell(TcpMessage.resumeWriting(), self());
         getContext().become(closeResend, false);
       } else if (msg instanceof Integer) {
         acknowledge((Integer) msg);
         if (storage.isEmpty())
-          getContext().stop(getSelf());
+          getContext().stop(self());
       }
     }
   };
@@ -191,11 +191,11 @@ public class EchoHandler extends UntypedActor {
 
     if (stored > MAX_STORED) {
       log.warning("drop connection to [{}] (buffer overrun)", remote);
-      getContext().stop(getSelf());
+      getContext().stop(self());
 
     } else if (stored > HIGH_WATERMARK) {
       log.debug("suspending reading at {}", currentOffset());
-      connection.tell(TcpMessage.suspendReading(), getSelf());
+      connection.tell(TcpMessage.suspendReading(), self());
       suspended = true;
     }
   }
@@ -211,7 +211,7 @@ public class EchoHandler extends UntypedActor {
 
     if (suspended && stored < LOW_WATERMARK) {
       log.debug("resuming reading");
-      connection.tell(TcpMessage.resumeReading(), getSelf());
+      connection.tell(TcpMessage.resumeReading(), self());
       suspended = false;
     }
   }
@@ -224,12 +224,12 @@ public class EchoHandler extends UntypedActor {
   protected void writeAll() {
     int i = 0;
     for (ByteString data : storage) {
-      connection.tell(TcpMessage.write(data, new Ack(storageOffset + i++)), getSelf());
+      connection.tell(TcpMessage.write(data, new Ack(storageOffset + i++)), self());
     }
   }
 
   protected void writeFirst() {
-    connection.tell(TcpMessage.write(storage.peek(), new Ack(storageOffset)), getSelf());
+    connection.tell(TcpMessage.write(storage.peek(), new Ack(storageOffset)), self());
   }
 
   //#storage-omitted

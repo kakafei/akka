@@ -161,7 +161,7 @@ public class ActorSubscriberDocTest extends AbstractJavaTest {
       public WorkerPool() {
         final List<Routee> routees = new ArrayList<>();
         for (int i = 0; i < 3; i++)
-          routees.add(new ActorRefRoutee(context().actorOf(Props.create(Worker.class))));
+          routees.add(new ActorRefRoutee(getContext().actorOf(Props.create(Worker.class))));
         router = new Router(new RoundRobinRoutingLogic(), routees);
       }
       
@@ -180,7 +180,7 @@ public class ActorSubscriberDocTest extends AbstractJavaTest {
           })
           .match(ActorSubscriberMessage.onCompleteInstance().getClass(), complete -> {
             if (queue.isEmpty()) {
-              context().stop(self());
+              getContext().stop(self());
             }
           })
           .match(WorkerPoolProtocol.Reply.class, reply -> {
@@ -188,7 +188,7 @@ public class ActorSubscriberDocTest extends AbstractJavaTest {
             queue.get(id).tell(WorkerPoolProtocol.done(id), self());
             queue.remove(id);
             if (canceled() && queue.isEmpty()) {
-              context().stop(self());
+              getContext().stop(self());
             }
           })
           .build();

@@ -89,7 +89,7 @@ public class ActorDocTest extends AbstractJavaTest {
   static
   //#context-actorOf
   public class FirstActor extends AbstractActor {
-    final ActorRef child = context().actorOf(Props.create(MyActor.class), "myChild");
+    final ActorRef child = getContext().actorOf(Props.create(MyActor.class), "myChild");
     
     //#plus-some-behavior
     @Override
@@ -227,7 +227,7 @@ public class ActorDocTest extends AbstractJavaTest {
   //#props-factory
   public class SomeOtherActor extends AbstractActor {
     // Props(new DemoActor(42)) would not be safe
-    ActorRef demoActor = context().actorOf(DemoActor.props(42), "demo");
+    ActorRef demoActor = getContext().actorOf(DemoActor.props(42), "demo");
     // ...
     //#props-factory
     @Override
@@ -310,7 +310,7 @@ public class ActorDocTest extends AbstractJavaTest {
     //#preStart
     @Override
     public void preStart() {
-      target = context().actorOf(Props.create(MyActor.class, "target"));
+      target = getContext().actorOf(Props.create(MyActor.class, "target"));
     }
     //#preStart
     //#postStop
@@ -324,7 +324,7 @@ public class ActorDocTest extends AbstractJavaTest {
       //#tell
       final Object result = "";
       //#forward
-      target.forward(result, context());
+      target.forward(result, getContext());
       //#forward
       target = null;
       //#clean-up-some-resources
@@ -335,20 +335,20 @@ public class ActorDocTest extends AbstractJavaTest {
     public void compileSelections() {
       //#selection-local
       // will look up this absolute path
-      context().actorSelection("/user/serviceA/actor");
+      getContext().actorSelection("/user/serviceA/actor");
       // will look up sibling beneath same supervisor
-      context().actorSelection("../joe");
+      getContext().actorSelection("../joe");
       //#selection-local
 
       //#selection-wildcard
       // will look all children to serviceB with names starting with worker
-      context().actorSelection("/user/serviceB/worker*");
+      getContext().actorSelection("/user/serviceB/worker*");
       // will look up all siblings beneath same supervisor
-      context().actorSelection("../*");
+      getContext().actorSelection("../*");
       //#selection-wildcard
 
       //#selection-remote
-      context().actorSelection("akka.tcp://app@otherhost:1234/user/serviceB");
+      getContext().actorSelection("akka.tcp://app@otherhost:1234/user/serviceB");
       //#selection-remote
     }
   }
@@ -386,7 +386,7 @@ public class ActorDocTest extends AbstractJavaTest {
     public static final Shutdown SHUTDOWN = Shutdown.Shutdown;
 
     private ActorRef worker =
-    context().watch(context().actorOf(Props.create(Cruncher.class), "worker"));
+    getContext().watch(getContext().actorOf(Props.create(Cruncher.class), "worker"));
 
     @Override
     public Receive initialReceive() {
@@ -407,7 +407,7 @@ public class ActorDocTest extends AbstractJavaTest {
           sender().tell("service unavailable, shutting down", self())
         )
         .match(Terminated.class, t -> t.actor().equals(worker), t -> 
-          context().stop(self())
+          getContext().stop(self())
         )
         .build();
     }
@@ -539,7 +539,7 @@ public class ActorDocTest extends AbstractJavaTest {
   //#receive-timeout
   public class ReceiveTimeoutActor extends AbstractActor {
     //#receive-timeout
-    ActorRef target = context().system().deadLetters();
+    ActorRef target = getContext().system().deadLetters();
     //#receive-timeout
     public ReceiveTimeoutActor() {
       // To set an initial delay
@@ -559,7 +559,7 @@ public class ActorDocTest extends AbstractJavaTest {
         })
         .match(ReceiveTimeout.class, r -> {
           // To turn it off
-          context().setReceiveTimeout(Duration.Undefined());
+          getContext().setReceiveTimeout(Duration.Undefined());
           //#receive-timeout
           target.tell("timeout", self());
           //#receive-timeout
@@ -672,18 +672,18 @@ public class ActorDocTest extends AbstractJavaTest {
   static
   //#watch
   public class WatchActor extends AbstractActor {
-    private final ActorRef child = context().actorOf(Props.empty(), "target");
+    private final ActorRef child = getContext().actorOf(Props.empty(), "target");
     private ActorRef lastSender = system.deadLetters();
 
     public WatchActor() {
-      context().watch(child); // <-- this is the only call needed for registration
+      getContext().watch(child); // <-- this is the only call needed for registration
     }
     
     @Override
     public Receive initialReceive() {
       return receiveBuilder()
         .matchEquals("kill", s -> {
-          context().stop(child);
+          getContext().stop(child);
           lastSender = sender();
         })
         .match(Terminated.class, t -> t.actor().equals(child), t -> {
@@ -712,7 +712,7 @@ public class ActorDocTest extends AbstractJavaTest {
     final Integer identifyId = 1;
 
     public Follower(){
-      ActorSelection selection = context().actorSelection("/user/another");
+      ActorSelection selection = getContext().actorSelection("/user/another");
       selection.tell(new Identify(identifyId), self());
     }
     
@@ -725,7 +725,7 @@ public class ActorDocTest extends AbstractJavaTest {
           getContext().become(active(ref));
         })
         .match(ActorIdentity.class, id -> id.getRef() == null, id -> {
-          context().stop(self());
+          getContext().stop(self());
         })
         .build();
     }
@@ -733,7 +733,7 @@ public class ActorDocTest extends AbstractJavaTest {
     final AbstractActor.Receive active(final ActorRef another) {
       return receiveBuilder()
         .match(Terminated.class, t -> t.actor().equals(another), t ->
-          context().stop(self())
+          getContext().stop(self())
         )
         .build();
     }

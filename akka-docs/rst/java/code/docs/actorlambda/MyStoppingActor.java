@@ -17,10 +17,10 @@ public class MyStoppingActor extends AbstractActor {
   public Receive initialReceive() {
     return receiveBuilder()
       .matchEquals("interrupt-child", m ->
-        context().stop(child)
+        getContext().stop(child)
       )
       .matchEquals("done", m ->
-        context().stop(getSelf())
+        getContext().stop(self())
       )
       .build();
   }

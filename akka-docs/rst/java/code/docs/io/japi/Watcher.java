@@ -27,7 +27,7 @@ public class Watcher extends UntypedActor {
       getContext().watch(((Watch) msg).target);
     } else if (msg instanceof Terminated) {
       latch.countDown();
-      if (latch.getCount() == 0) getContext().stop(getSelf());
+      if (latch.getCount() == 0) getContext().stop(self());
     }
   }
 

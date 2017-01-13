@@ -198,7 +198,7 @@ public class LoggingDocTest extends AbstractJavaTest {
   class MyEventListener extends UntypedActor {
     public void onReceive(Object message) {
       if (message instanceof InitializeLogger) {
-        getSender().tell(Logging.loggerInitialized(), getSelf());
+        sender().tell(Logging.loggerInitialized(), self());
       } else if (message instanceof Error) {
         // ...
       } else if (message instanceof Warning) {

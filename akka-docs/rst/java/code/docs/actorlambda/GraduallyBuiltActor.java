@@ -15,7 +15,7 @@ import akka.japi.pf.UnitPFBuilder;
 
 //#actor
 public class GraduallyBuiltActor extends AbstractActor {
-  private final LoggingAdapter log = Logging.getLogger(context().system(), this);
+  private final LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
   @Override
   public Receive initialReceive() {
